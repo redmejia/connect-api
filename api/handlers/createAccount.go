@@ -6,6 +6,9 @@ import (
 	"net/http"
 )
 
+// test map fake database
+var DB = make(map[string]models.BusinessAccount)
+
 func (a *App) RegisterMyBusiness(w http.ResponseWriter, r *http.Request) {
 	var myBusinessAccount models.BusinessAccount
 
@@ -15,7 +18,17 @@ func (a *App) RegisterMyBusiness(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	DB["my-business"] = myBusinessAccount
+
+	data, err := json.Marshal(DB)
+	if err != nil {
+		a.Error.Println(err)
+		return
+	}
+
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	a.Info.Println("Recived ", myBusinessAccount)
+	w.Write(data)
+
+	a.Info.Println(string(data))
 }
