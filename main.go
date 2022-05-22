@@ -12,8 +12,8 @@ import (
 )
 
 func main() {
-
-	db, err := postgresql.Connection()
+	// db, err := postgresql.Connection()
+	db, err := postgresql.DnsConnection(os.Getenv("DNS"))
 	if err != nil {
 		log.Fatal(err)
 		return
