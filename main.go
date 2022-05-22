@@ -3,6 +3,8 @@ package main
 import (
 	"connect/api/handlers"
 	"connect/api/router"
+	"connect/internal/database/postgresql"
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,6 +13,24 @@ import (
 
 func main() {
 
+	db, err := postgresql.Connection()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	tDb := func(d *sql.DB) {
+		err := d.Ping()
+		if err != nil {
+			log.Fatal("error is heree >>", err)
+			return
+		}
+	}
+
+	tDb(db)
+
+	log.Println("no erro on connection can continue ")
+
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime)
 
@@ -18,6 +38,9 @@ func main() {
 		Port:  8080,
 		Info:  infoLog,
 		Error: errorLog,
+		DB: postgresql.DbPostgres{
+			Db: db,
+		},
 	}
 
 	srv := &http.Server{
@@ -26,7 +49,7 @@ func main() {
 	}
 
 	fmt.Println("Server is runnin at :8080")
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -7,7 +7,7 @@ import (
 )
 
 // test map fake database
-var DB = make(map[string]models.BusinessAccount)
+var DBs = make(map[string]models.BusinessAccount)
 
 func (a *App) RegisterMyBusiness(w http.ResponseWriter, r *http.Request) {
 	var myBusinessAccount models.BusinessAccount
@@ -18,9 +18,9 @@ func (a *App) RegisterMyBusiness(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	DB["my-business"] = myBusinessAccount
+	DBs["my-business"] = myBusinessAccount
 
-	data, err := json.Marshal(DB)
+	data, err := json.Marshal(DBs)
 	if err != nil {
 		a.Error.Println(err)
 		return

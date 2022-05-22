@@ -1,3 +1,7 @@
 dist/*
 
+internal/env
+
+run.sh
+
 Makefile
