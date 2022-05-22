@@ -22,7 +22,7 @@ func main() {
 	tDb := func(d *sql.DB) {
 		err := d.Ping()
 		if err != nil {
-			log.Fatal("error is heree >>", err)
+			log.Fatal(err)
 			return
 		}
 	}
