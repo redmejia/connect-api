@@ -15,6 +15,15 @@ type DbPostgres struct {
 	Dns string
 }
 
+// Ping connection to postgresql database
+func ConnectionPing(db *sql.DB) (bool, error) {
+	err := db.Ping()
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 // Connection
 func Connection() (*sql.DB, error) {
 	port, _ := strconv.Atoi(os.Getenv("DBPORT"))

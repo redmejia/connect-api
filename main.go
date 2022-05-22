@@ -4,7 +4,6 @@ import (
 	"connect/api/handlers"
 	"connect/api/router"
 	"connect/internal/database/postgresql"
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,24 +11,11 @@ import (
 )
 
 func main() {
-	// db, err := postgresql.Connection()
-	db, err := postgresql.DnsConnection(os.Getenv("DNS"))
+	db, err := postgresql.Connection()
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
-
-	tDb := func(d *sql.DB) {
-		err := d.Ping()
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-	}
-
-	tDb(db)
-
-	log.Println("no erro on connection can continue ")
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime)
