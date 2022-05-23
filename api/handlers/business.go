@@ -53,8 +53,8 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 		fakeNewDeals.ProductName = newDeal.ProductName
 		fakeNewDeals.DealDescription = newDeal.DealDescription
 		fakeNewDeals.DealStart = time.Now()
-		fakeNewDeals.DealIsActive = false
-		fakeNewDeals.Sold = true
+		// fakeNewDeals.DealIsActive = false
+		// fakeNewDeals.Sold = true
 		fakeNewDeals.Price = newDeal.Price
 
 		data, _ := json.Marshal(fakeNewDeals)
@@ -123,9 +123,9 @@ func (a *App) DealsByType(w http.ResponseWriter, r *http.Request) {
 				ProductName:     "caps coffe",
 				DealDescription: "I am sellig a box of coffee 16oz",
 				DealStart:       time.Now(),
-				DealIsActive:    true,
-				Sold:            false,
-				Price:           53.53,
+				// DealIsActive:    true,
+				// Sold:            false,
+				Price: 53.53,
 			},
 			models.Deal{
 				DealID:          88,
@@ -133,9 +133,9 @@ func (a *App) DealsByType(w http.ResponseWriter, r *http.Request) {
 				ProductName:     "caps coffe",
 				DealDescription: "I am sellig a box of coffee 16oz",
 				DealStart:       time.Now(),
-				DealIsActive:    true,
-				Sold:            false,
-				Price:           53.53,
+				// DealIsActive:    true,
+				// Sold:            false,
+				Price: 53.53,
 			},
 			models.Deal{
 				DealID:          35,
@@ -143,9 +143,9 @@ func (a *App) DealsByType(w http.ResponseWriter, r *http.Request) {
 				ProductName:     "test",
 				DealDescription: "I am  bags 100pound and Semilla",
 				DealStart:       time.Now(),
-				DealIsActive:    true,
-				Sold:            false,
-				Price:           53.53,
+				// DealIsActive:    true,
+				// Sold:            false,
+				Price: 53.53,
 			},
 		}
 
@@ -178,9 +178,9 @@ func (a *App) DealByIdandType(w http.ResponseWriter, r *http.Request) {
 			ProductName:     "caps coffe",
 			DealDescription: "I am sellig a box of coffee 16oz",
 			DealStart:       time.Now(),
-			DealIsActive:    true,
-			Sold:            false,
-			Price:           53.53,
+			// DealIsActive:    true,
+			// Sold:            false,
+			Price: 53.53,
 		},
 		models.Deal{
 			DealID:          88,
@@ -188,18 +188,18 @@ func (a *App) DealByIdandType(w http.ResponseWriter, r *http.Request) {
 			ProductName:     "caps coffe",
 			DealDescription: "I am sellig a box of coffee 16oz",
 			DealStart:       time.Now(),
-			DealIsActive:    true,
-			Sold:            false,
-			Price:           53.53,
+			// DealIsActive:    true,
+			// Sold:            false,
+			Price: 53.53,
 		},
 		models.Deal{
 			DealID:          35,
+			BusinessID:      0,
 			BusinessType:    "foo & drink",
 			ProductName:     "test",
 			DealDescription: "I am  bags 100pound and Semilla",
 			DealStart:       time.Now(),
-			DealIsActive:    true,
-			Sold:            false,
+			IsActive:        models.ActiveDeals{Sold: false, DealIsActive: true},
 			Price:           53.53,
 		},
 	}

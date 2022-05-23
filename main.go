@@ -12,6 +12,7 @@ import (
 
 func main() {
 	db, err := postgresql.Connection()
+	defer db.Close()
 	if err != nil {
 		log.Fatal(err)
 		return

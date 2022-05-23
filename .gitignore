@@ -1,7 +1,10 @@
+.vscode
+
 dist/*
 
 internal/env
-
-run.sh
+internal/database/migrations/
 
 Makefile
+
+run.sh
