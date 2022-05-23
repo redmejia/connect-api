@@ -21,6 +21,7 @@ type LogIn struct {
 // Deal
 type Deal struct {
 	DealID          int       `json:"deal_id"`
+	BusinessID      int       `json:"business_id"`
 	BusinessType    string    `json:"business_type"`
 	ProductName     string    `json:"product_name"`
 	DealDescription string    `json:"deal_desciption"`
