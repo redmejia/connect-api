@@ -210,12 +210,16 @@ func (a *App) DealByIdandType(w http.ResponseWriter, r *http.Request) {
 
 	var deal = make(map[string]models.Deal)
 	if r.Method == http.MethodGet {
-		a.Info.Println(queryMap)
 		for _, v := range deals {
 			if v.DealID == id {
 				deal["deal"] = v
 			}
 		}
+	} else {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		a.Error.Println("not found bad request")
+		return
 	}
 
 	data, _ := json.Marshal(deal)
