@@ -3,6 +3,7 @@ package postgresql
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 
@@ -11,8 +12,9 @@ import (
 
 // DbPostgres
 type DbPostgres struct {
-	Db  *sql.DB
-	Dns string
+	Db          *sql.DB
+	Dns         string
+	Info, Error *log.Logger
 }
 
 // Ping connection to postgresql database

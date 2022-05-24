@@ -9,41 +9,27 @@ import (
 )
 
 func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
-	// test data model
-	fakeBusiness := models.BusinessAccount{
-		BusinessID:   53,
-		BusinessName: "Connect the world is mine",
-		BusinessType: "Software Development", // This is not type listed testing only two food and drink and agriculture more can be add
-		Email:        "connect@mail.com",
-		Founded:      1953,
-		Password:     "****************",
-	}
 
 	var fakeNewDeals models.Deal
 
 	switch r.Method {
 	case http.MethodGet:
-		// for profile information
 		// http://localhost:8080/api/my-business?bus-id=53
-		id, err := strconv.Atoi(r.URL.Query().Get("bus-id"))
+		businessId, err := strconv.Atoi(r.URL.Query().Get("bus-id"))
 		if err != nil {
 			a.Error.Println(err)
 			return
 		}
 
-		a.Info.Println("your business-id ", id)
+		business := a.DB.GetMyBusinessInfoById(businessId)
 
-		if id == fakeBusiness.BusinessID {
+		data, _ := json.Marshal(business)
 
-			data, _ := json.Marshal(fakeBusiness)
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(data)
 
-			w.Header().Add("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			w.Write(data)
-
-			a.Info.Println(string(data))
-
-		}
+		a.Info.Println(string(data))
 
 	case http.MethodPost:
 		var newDeal models.Deal
@@ -65,6 +51,14 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 		a.Info.Println(string(data))
 
 	case http.MethodPatch:
+		fakeBusiness := models.BusinessAccount{
+			BusinessID:   53,
+			BusinessName: "Connect the world is mine",
+			BusinessType: "Software Development", // This is not type listed testing only two food and drink and agriculture more can be add
+			Email:        "connect@mail.com",
+			Founded:      1953,
+			Password:     "****************",
+		}
 		var business models.BusinessAccount
 
 		err := json.NewDecoder(r.Body).Decode(&business)

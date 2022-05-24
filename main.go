@@ -26,7 +26,9 @@ func main() {
 		Info:  infoLog,
 		Error: errorLog,
 		DB: postgresql.DbPostgres{
-			Db: db,
+			Db:    db,
+			Info:  infoLog,
+			Error: errorLog,
 		},
 	}
 
