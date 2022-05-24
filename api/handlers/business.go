@@ -10,8 +10,6 @@ import (
 
 func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 
-	// var fakeNewDeals models.Deal
-
 	switch r.Method {
 	case http.MethodGet:
 		// http://localhost:8080/api/my-business?bus-id=53
