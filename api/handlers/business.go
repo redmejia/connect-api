@@ -52,44 +52,44 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case http.MethodPatch:
-		fakeBusiness := models.BusinessAccount{
-			BusinessID:   53,
-			BusinessName: "Connect the world is mine",
-			BusinessType: "Software Development", // This is not type listed testing only two food and drink and agriculture more can be add
-			Email:        "connect@mail.com",
-			Founded:      1953,
-			Password:     "****************",
-		}
-		var business models.BusinessAccount
 
-		err := json.NewDecoder(r.Body).Decode(&business)
+		var businessUpdate models.BusinessAccount
+
+		err := json.NewDecoder(r.Body).Decode(&businessUpdate)
 		if err != nil {
 			a.Error.Println(err)
 			return
 		}
 
-		a.Info.Println("before upadted ", fakeBusiness)
+		myBusinessInfo := a.DB.GetMyBusinessInfoById(businessUpdate.BusinessID)
 
-		if len(business.BusinessName) != 0 {
-			fakeBusiness.BusinessName = business.BusinessName
+		if len(businessUpdate.BusinessName) != 0 && businessUpdate.BusinessName != myBusinessInfo.BusinessName {
+			myBusinessInfo.BusinessName = businessUpdate.BusinessName
 		}
 
-		if len(business.Email) != 0 {
-			fakeBusiness.Email = business.Email
+		if len(businessUpdate.Email) != 0 && businessUpdate.Email != myBusinessInfo.Email {
+			myBusinessInfo.Email = businessUpdate.Email
 		}
 
-		if business.Founded > 0 && business.Founded != fakeBusiness.Founded {
-			fakeBusiness.Founded = business.Founded
+		if len(businessUpdate.BusinessType) != 0 && businessUpdate.BusinessType != myBusinessInfo.BusinessType {
+			myBusinessInfo.BusinessType = businessUpdate.BusinessType
 		}
 
-		data, err := json.Marshal(fakeBusiness)
+		if businessUpdate.Founded > 0 && businessUpdate.Founded != myBusinessInfo.Founded {
+			myBusinessInfo.Founded = businessUpdate.Founded
+		}
+
+		a.DB.UpdateProfile(myBusinessInfo)
+
+		data, err := json.Marshal(myBusinessInfo)
 		if err != nil {
 			a.Error.Println(err)
 			return
 		}
 
 		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusAccepted)
+		w.WriteHeader(http.StatusCreated)
+		w.Write(data)
 
 		a.Info.Println("upadted ", string(data))
 

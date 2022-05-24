@@ -39,6 +39,34 @@ func (p *DbPostgres) GetMyBusinessInfoById(businessId int) *models.BusinessAccou
 	return &business
 }
 
+// UpdateProfile
+func (p *DbPostgres) UpdateProfile(business *models.BusinessAccount) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `
+		update business_account 
+			set bus_name = $1, bus_type = $2,  email = $3, founded = $4
+		where 
+			bus_id = $5
+	`
+
+	_, err := p.Db.ExecContext(
+		ctx,
+		query,
+		business.BusinessName,
+		business.BusinessType,
+		business.Email,
+		business.Founded,
+		business.BusinessID,
+	)
+
+	if err != nil {
+		p.Error.Println(err)
+		return
+	}
+}
+
 // CreateNewDeal
 func (p *DbPostgres) CreateNewDeal(deal *models.Deal) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
