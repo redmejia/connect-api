@@ -10,11 +10,12 @@ import (
 
 func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 
-	var fakeNewDeals models.Deal
+	// var fakeNewDeals models.Deal
 
 	switch r.Method {
 	case http.MethodGet:
 		// http://localhost:8080/api/my-business?bus-id=53
+
 		businessId, err := strconv.Atoi(r.URL.Query().Get("bus-id"))
 		if err != nil {
 			a.Error.Println(err)
@@ -32,23 +33,23 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 		a.Info.Println(string(data))
 
 	case http.MethodPost:
+		// http://localhost:8080/api/my-business
+
 		var newDeal models.Deal
 
 		json.NewDecoder(r.Body).Decode(&newDeal)
 
-		fakeNewDeals.ProductName = newDeal.ProductName
-		fakeNewDeals.DealDescription = newDeal.DealDescription
-		fakeNewDeals.DealStart = time.Now()
-		// fakeNewDeals.DealIsActive = false
-		// fakeNewDeals.Sold = true
-		fakeNewDeals.Price = newDeal.Price
+		ok := a.DB.CreateNewDeal(&newDeal)
 
-		data, _ := json.Marshal(fakeNewDeals)
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(data)
+		if ok {
 
-		a.Info.Println(string(data))
+			data, _ := json.Marshal(newDeal)
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write(data)
+
+			a.Info.Println(string(data))
+		}
 
 	case http.MethodPatch:
 		fakeBusiness := models.BusinessAccount{

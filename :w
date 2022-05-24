@@ -66,7 +66,7 @@ func (p *DbPostgres) CreateNewDeal(deal *models.Deal) bool {
 
 	query := `
 		insert into new_deal
-			(deal_id, bus_id, bus_type, pro_name, pro_description, created_at, price)
+			(deal_id, bus_id, bus_type, pro_name, pro_description, crated_at, price)
 		values
 			($1, $2, $3, $4, $5, $6, $7)
 	`
