@@ -118,7 +118,7 @@ func (p *DbPostgres) CreateNewDeal(deal *models.Deal) bool {
 	return true
 }
 
-func (p *DbPostgres) GetDealsByType(businessType string) []models.Deal {
+func (p *DbPostgres) GetDealsByType(businessType string) *[]models.Deal {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -169,5 +169,5 @@ func (p *DbPostgres) GetDealsByType(businessType string) []models.Deal {
 		dealsType = append(dealsType, deal)
 	}
 
-	return dealsType
+	return &dealsType
 }
