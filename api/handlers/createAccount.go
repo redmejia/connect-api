@@ -11,6 +11,7 @@ var DBs = make(map[string]models.BusinessAccount)
 
 func (a *App) RegisterMyBusiness(w http.ResponseWriter, r *http.Request) {
 	var myBusinessAccount models.BusinessAccount
+	a.Info.Println(myBusinessAccount)
 
 	err := json.NewDecoder(r.Body).Decode(&myBusinessAccount)
 	if err != nil {

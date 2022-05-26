@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 // BusinessProfile For creating a profile, updating information and creating new deal.
@@ -129,62 +128,26 @@ func (a *App) DealsByType(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (a *App) DealByIdandType(w http.ResponseWriter, r *http.Request) {
-	// http://localhost:8080/api/my-business/deal?deal-id=53&bus-type=fooddrink
-	deals := []models.Deal{
-		models.Deal{
-			DealID:          53,
-			BusinessType:    "food & drink",
-			ProductName:     "caps coffe",
-			DealDescription: "I am sellig a box of coffee 16oz",
-			DealStart:       time.Now(),
-			// DealIsActive:    true,
-			// Sold:            false,
-			Price: 53.53,
-		},
-		models.Deal{
-			DealID:          88,
-			BusinessType:    "food & drink",
-			ProductName:     "caps coffe",
-			DealDescription: "I am sellig a box of coffee 16oz",
-			DealStart:       time.Now(),
-			// DealIsActive:    true,
-			// Sold:            false,
-			Price: 53.53,
-		},
-		models.Deal{
-			DealID:          35,
-			BusinessID:      0,
-			BusinessType:    "foo & drink",
-			ProductName:     "test",
-			DealDescription: "I am  bags 100pound and Semilla",
-			DealStart:       time.Now(),
-			IsActive:        models.ActiveDeals{Sold: false, DealIsActive: true},
-			Price:           53.53,
-		},
-	}
+func (a *App) DealByIDs(w http.ResponseWriter, r *http.Request) {
+	// http://localhost:8080/api/my-business/deal?deal-id=17&bus-id=3
 
 	queryMap := r.URL.Query()
 
-	id, _ := strconv.Atoi(queryMap["deal-id"][0])
+	did, _ := strconv.Atoi(queryMap["deal-id"][0])
+	bid, _ := strconv.Atoi(queryMap["bus-id"][0])
 
-	var deal = make(map[string]models.Deal)
 	if r.Method == http.MethodGet {
-		for _, v := range deals {
-			if v.DealID == id {
-				deal["deal"] = v
-			}
-		}
+		deal := a.DB.GetDealsByIDs(did, bid)
+
+		data, _ := json.Marshal(deal)
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(data)
 	} else {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		a.Error.Println("not found bad request")
 		return
 	}
-
-	data, _ := json.Marshal(deal)
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
 
 }

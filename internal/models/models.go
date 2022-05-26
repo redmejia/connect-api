@@ -31,7 +31,7 @@ type Deal struct {
 	DealID          int         `json:"deal_id"`
 	BusinessID      int         `json:"business_id"`
 	BusinessType    string      `json:"business_type"`
-	ProductName     string      `json:"product_name"`
+	ProductName     string      `json:"product_name"` // add to tale column
 	DealDescription string      `json:"deal_desciption"`
 	DealStart       time.Time   `json:"deal_start"` // change to created at
 	IsActive        ActiveDeals `json:"is_active"`

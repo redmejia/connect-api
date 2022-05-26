@@ -118,6 +118,7 @@ func (p *DbPostgres) CreateNewDeal(deal *models.Deal) bool {
 	return true
 }
 
+// GetDealsByType all by type
 func (p *DbPostgres) GetDealsByType(businessType string) *[]models.Deal {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -128,13 +129,13 @@ func (p *DbPostgres) GetDealsByType(businessType string) *[]models.Deal {
 			nd.pro_name, nd.pro_description, nd.created_at, nd.price,
 			a.deal_id, a.bus_id, a.active, a.sold
 		from
-			new_deal nd
+			new_deal as nd
 		join 
-			active a
+			active as a
 		on 
 			nd.deal_id = a.deal_id
 		where 
-			bus_type = $1;
+			nd.bus_type = $1;
 		`
 
 	var dealsType []models.Deal
@@ -170,4 +171,50 @@ func (p *DbPostgres) GetDealsByType(businessType string) *[]models.Deal {
 	}
 
 	return &dealsType
+}
+
+// GetDelsByIDs retrive single deal by deal_id and business id  or bus_id
+func (p *DbPostgres) GetDealsByIDs(dealId, businessId int) models.Deal {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `
+		select 
+			nd.deal_id, nd.bus_id, nd.bus_type, 
+			nd.pro_name, nd.pro_description, nd.created_at, nd.price,
+			a.deal_id, a.bus_id, a.active, a.sold
+		from
+			new_deal as nd
+		join 
+			active as a
+		on 
+			nd.deal_id = a.deal_id
+		where 
+			nd.deal_id = $1 and nd.bus_id = $2;
+	`
+	row := p.Db.QueryRowContext(ctx, query, dealId, businessId)
+
+	var deal models.Deal
+
+	err := row.Scan(
+		&deal.DealID,
+		&deal.BusinessID,
+		&deal.BusinessType,
+		&deal.ProductName,
+		&deal.DealDescription,
+		&deal.DealStart,
+		&deal.Price,
+		&deal.IsActive.DealID,
+		&deal.IsActive.BusinessID,
+		&deal.IsActive.DealIsActive,
+		&deal.IsActive.Sold,
+	)
+
+	if err != nil {
+		p.Error.Println(err)
+		return deal
+	}
+
+	return deal
+
 }
