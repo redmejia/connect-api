@@ -117,3 +117,57 @@ func (p *DbPostgres) CreateNewDeal(deal *models.Deal) bool {
 
 	return true
 }
+
+func (p *DbPostgres) GetDealsByType(businessType string) []models.Deal {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `
+		select 
+			nd.deal_id, nd.bus_id, nd.bus_type, 
+			nd.pro_name, nd.pro_description, nd.created_at, nd.price,
+			a.deal_id, a.bus_id, a.active, a.sold
+		from
+			new_deal nd
+		join 
+			active a
+		on 
+			nd.deal_id = a.deal_id
+		where 
+			bus_type = $1;
+		`
+
+	var dealsType []models.Deal
+
+	rows, err := p.Db.QueryContext(ctx, query, businessType)
+	if err != nil {
+		p.Error.Println(err)
+		return nil
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var deal models.Deal
+		err := rows.Scan(
+			&deal.DealID,
+			&deal.BusinessID,
+			&deal.BusinessType,
+			&deal.ProductName,
+			&deal.DealDescription,
+			&deal.DealStart,
+			&deal.Price,
+			&deal.IsActive.DealID,
+			&deal.IsActive.BusinessID,
+			&deal.IsActive.DealIsActive,
+			&deal.IsActive.Sold,
+		)
+		if err != nil {
+			p.Error.Println(err)
+			return nil
+		}
+
+		dealsType = append(dealsType, deal)
+	}
+
+	return dealsType
+}

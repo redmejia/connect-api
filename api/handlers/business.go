@@ -102,49 +102,50 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 // deals by type
 func (a *App) DealsByType(w http.ResponseWriter, r *http.Request) {
 	// http://localhost:8080/api/my-business/deals?type=fooddrink
-	var dbDeals = make(map[string][]models.Deal)
+	// var dbDeals = make(map[string][]models.Deal)
 
 	businessType := r.URL.Query().Get("type")
 
 	if r.Method == http.MethodGet {
 		a.Info.Println(businessType)
 
-		deals := []models.Deal{
-			models.Deal{
-				DealID:          53,
-				BusinessType:    "food & drink",
-				ProductName:     "caps coffe",
-				DealDescription: "I am sellig a box of coffee 16oz",
-				DealStart:       time.Now(),
-				// DealIsActive:    true,
-				// Sold:            false,
-				Price: 53.53,
-			},
-			models.Deal{
-				DealID:          88,
-				BusinessType:    "food & drink",
-				ProductName:     "caps coffe",
-				DealDescription: "I am sellig a box of coffee 16oz",
-				DealStart:       time.Now(),
-				// DealIsActive:    true,
-				// Sold:            false,
-				Price: 53.53,
-			},
-			models.Deal{
-				DealID:          35,
-				BusinessType:    "foo & drink",
-				ProductName:     "test",
-				DealDescription: "I am  bags 100pound and Semilla",
-				DealStart:       time.Now(),
-				// DealIsActive:    true,
-				// Sold:            false,
-				Price: 53.53,
-			},
-		}
+		// deals := []models.Deal{
+		// 	models.Deal{
+		// 		DealID:          53,
+		// 		BusinessType:    "food & drink",
+		// 		ProductName:     "caps coffe",
+		// 		DealDescription: "I am sellig a box of coffee 16oz",
+		// 		DealStart:       time.Now(),
+		// 		// DealIsActive:    true,
+		// 		// Sold:            false,
+		// 		Price: 53.53,
+		// 	},
+		// 	models.Deal{
+		// 		DealID:          88,
+		// 		BusinessType:    "food & drink",
+		// 		ProductName:     "caps coffe",
+		// 		DealDescription: "I am sellig a box of coffee 16oz",
+		// 		DealStart:       time.Now(),
+		// 		// DealIsActive:    true,
+		// 		// Sold:            false,
+		// 		Price: 53.53,
+		// 	},
+		// 	models.Deal{
+		// 		DealID:          35,
+		// 		BusinessType:    "foo & drink",
+		// 		ProductName:     "test",
+		// 		DealDescription: "I am  bags 100pound and Semilla",
+		// 		DealStart:       time.Now(),
+		// 		// DealIsActive:    true,
+		// 		// Sold:            false,
+		// 		Price: 53.53,
+		// 	},
+		// }
 
-		dbDeals["deals"] = deals
+		// dbDeals["deals"] = deals
+		dealsTye := a.DB.GetDealsByType(businessType)
 
-		data, err := json.Marshal(dbDeals)
+		data, err := json.Marshal(dealsTye)
 		if err != nil {
 			a.Error.Println(err)
 			return
