@@ -151,3 +151,26 @@ func (a *App) DealByIDs(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+// DeleteByIDs
+func (a *App) DeleteDeal(w http.ResponseWriter, r *http.Request) {
+	// http://localhost/api/my-business/del/deal?deal-id=15&bus-id=1
+	queryMap := r.URL.Query()
+	did, _ := strconv.Atoi(queryMap["deal-id"][0])
+	bid, _ := strconv.Atoi(queryMap["bus-id"][0])
+
+	if r.Method == http.MethodDelete {
+		ok := a.DB.DeleteDealByIDs(did, bid)
+
+		if ok {
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusAccepted)
+			a.Info.Println("deal was deleted")
+		} else {
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			a.Error.Println("not found bad request")
+			return
+		}
+	}
+}

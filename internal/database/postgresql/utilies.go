@@ -223,3 +223,20 @@ func (p *DbPostgres) GetDealsByIDs(dealId, businessId int) models.Deal {
 	return deal
 
 }
+
+// DeleteDealByIDs
+func (p *DbPostgres) DeleteDealByIDs(dealId, businessId int) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	query := `
+		delete from active 
+		where deal_id = $1 and  bus_id = $2	
+	`
+	_, err := p.Db.ExecContext(ctx, query, dealId, businessId)
+	if err != nil {
+		p.Error.Println(err)
+		return false
+	}
+
+	return true
+}
