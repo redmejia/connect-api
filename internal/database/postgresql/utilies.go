@@ -240,3 +240,31 @@ func (p *DbPostgres) DeleteDealByIDs(dealId, businessId int) bool {
 
 	return true
 }
+
+// UpdateDealStatus
+func (p *DbPostgres) UpdateDealStatus(dealStatus *models.ActiveDeals) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `
+		update active
+		set active = $1, sold = $2
+		where deal_id = $3 and bus_id = $4
+	`
+
+	_, err := p.Db.ExecContext(
+		ctx,
+		query,
+		dealStatus.DealIsActive,
+		dealStatus.Sold,
+		dealStatus.DealID,
+		dealStatus.BusinessID,
+	)
+
+	if err != nil {
+		p.Error.Println(err)
+		return false
+	}
+
+	return true
+}

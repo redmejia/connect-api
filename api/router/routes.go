@@ -13,5 +13,7 @@ func Routes(app *handlers.App) http.Handler {
 	mux.HandleFunc("/api/my-business/deals", app.DealsByType)
 	mux.HandleFunc("/api/my-business/deal", app.DealByIDs)
 	mux.HandleFunc("/api/my-business/del/deal", app.DeleteDeal)
+	mux.HandleFunc("/api/my-business/deal/stat", app.DealUpdate)
+
 	return mux
 }

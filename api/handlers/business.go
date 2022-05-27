@@ -174,3 +174,26 @@ func (a *App) DeleteDeal(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+// DealUpdate update deal status if owner wants to sell same product if was not deleted
+func (a *App) DealUpdate(w http.ResponseWriter, r *http.Request) {
+	// http://localhost:8080/api/my-business/deal/stat
+	var dealUpdate models.ActiveDeals
+
+	json.NewDecoder(r.Body).Decode(&dealUpdate)
+
+	if r.Method == http.MethodPatch {
+		ok := a.DB.UpdateDealStatus(&dealUpdate)
+
+		if ok {
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusAccepted)
+			a.Info.Println("updated")
+		} else {
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			a.Error.Println("not found bad request")
+			return
+		}
+	}
+}
