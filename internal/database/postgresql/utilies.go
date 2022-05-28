@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"connect/internal/models"
+	"connect/internal/utils"
 	"context"
 	"time"
 )
@@ -266,5 +267,66 @@ func (p *DbPostgres) UpdateDealStatus(dealStatus *models.ActiveDeals) bool {
 		return false
 	}
 
+	return true
+}
+
+// RegisterMyBusiness
+func (p *DbPostgres) RegisterMyBusiness(newBusiness *models.BusinessAccount) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	tx, err := p.Db.BeginTx(ctx, nil)
+	if err != nil {
+		p.Error.Println(err)
+		return false
+	}
+	defer tx.Rollback()
+
+	var businessId int
+
+	query := `
+		insert into  business_account (bus_name, bus_type, email, founded, password)
+		values ($1, $2, $3, $4, $5)
+		returning bus_id
+	`
+
+	passwordHash, err := utils.HashPassword(newBusiness.Password)
+	if err != nil {
+		p.Error.Println(err)
+		return false
+	}
+
+	row := tx.QueryRowContext(
+		ctx,
+		query,
+		newBusiness.BusinessName,
+		newBusiness.BusinessType,
+		newBusiness.Email,
+		newBusiness.Founded,
+		passwordHash,
+	)
+
+	err = row.Scan(&businessId)
+	if err != nil {
+		p.Error.Println(err)
+		return false
+	}
+
+	_, err = tx.ExecContext(ctx, `
+		insert into login (bus_id, email, password)
+		values ($1, $2, $3)
+		`, businessId, newBusiness.Email, passwordHash,
+	)
+
+	if err != nil {
+		p.Error.Println(err)
+		return false
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		p.Error.Println(err)
+		return false
+	}
 	return true
 }

@@ -9,7 +9,7 @@ type BusinessAccount struct {
 	BusinessType string `json:"business_type"`
 	Email        string `json:"email"`
 	Founded      int    `json:"founded"`
-	Password     string `json:"-"`
+	Password     string `json:"password"`
 }
 
 // LogIn only email and password.
