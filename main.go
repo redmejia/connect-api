@@ -30,6 +30,7 @@ func main() {
 			Info:  infoLog,
 			Error: errorLog,
 		},
+		JwtKey: os.Getenv("JWT_KEY"),
 	}
 
 	srv := &http.Server{

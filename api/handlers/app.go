@@ -6,8 +6,9 @@ import (
 )
 
 type App struct {
-	Port  int
-	Info  *log.Logger
-	Error *log.Logger
-	DB    postgresql.DbPostgres
+	Port   int
+	Info   *log.Logger
+	Error  *log.Logger
+	DB     postgresql.DbPostgres
+	JwtKey string
 }

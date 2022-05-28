@@ -2,38 +2,43 @@ package handlers
 
 import (
 	"connect/internal/models"
+	"connect/internal/utils"
 	"encoding/json"
 	"net/http"
 )
 
-// for testing
-var registeredDB models.LogIn
-
 func (a *App) Signin(w http.ResponseWriter, r *http.Request) {
-	registeredDB.Email = "connect@mail.com"
-	registeredDB.Password = "theking"
 
-	var businessRegistered models.LogIn
+	var business models.LogIn
 
-	err := json.NewDecoder(r.Body).Decode(&businessRegistered)
+	err := json.NewDecoder(r.Body).Decode(&business)
 	if err != nil {
 		a.Error.Println(err)
 	}
 
-	ok := false
-
-	if businessRegistered.Email == registeredDB.Email && businessRegistered.Password == registeredDB.Password {
-		ok = true
+	token, err := utils.GenToken(business.Email)
+	if err != nil {
+		a.Error.Println(err)
+		return
 	}
 
-	if ok {
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Succes"))
-	} else {
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte("No match"))
+	var success = struct {
+		IsLogedin bool   `json:"is_login"`
+		Token     string `json:"token"`
+	}{
+		IsLogedin: true,
+		Token:     token,
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "bus_jwt",
+		Value:    token,
+		HttpOnly: true,
+	})
+
+	data, err := json.Marshal(success)
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
 
 }
