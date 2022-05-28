@@ -103,10 +103,8 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 func (a *App) DealsByType(w http.ResponseWriter, r *http.Request) {
 	// http://localhost:8080/api/my-business/deals?type=fooddrink
 
-	businessType := r.URL.Query().Get("type")
-
 	if r.Method == http.MethodGet {
-		a.Info.Println(businessType)
+		businessType := r.URL.Query().Get("type")
 
 		dealsTye := a.DB.GetDealsByType(businessType)
 
@@ -131,12 +129,12 @@ func (a *App) DealsByType(w http.ResponseWriter, r *http.Request) {
 func (a *App) DealByIDs(w http.ResponseWriter, r *http.Request) {
 	// http://localhost:8080/api/my-business/deal?deal-id=17&bus-id=3
 
-	queryMap := r.URL.Query()
-
-	did, _ := strconv.Atoi(queryMap["deal-id"][0])
-	bid, _ := strconv.Atoi(queryMap["bus-id"][0])
-
 	if r.Method == http.MethodGet {
+		queryMap := r.URL.Query()
+
+		did, _ := strconv.Atoi(queryMap["deal-id"][0])
+		bid, _ := strconv.Atoi(queryMap["bus-id"][0])
+
 		deal := a.DB.GetDealsByIDs(did, bid)
 
 		data, _ := json.Marshal(deal)
@@ -155,11 +153,12 @@ func (a *App) DealByIDs(w http.ResponseWriter, r *http.Request) {
 // DeleteByIDs
 func (a *App) DeleteDeal(w http.ResponseWriter, r *http.Request) {
 	// http://localhost/api/my-business/del/deal?deal-id=15&bus-id=1
-	queryMap := r.URL.Query()
-	did, _ := strconv.Atoi(queryMap["deal-id"][0])
-	bid, _ := strconv.Atoi(queryMap["bus-id"][0])
 
 	if r.Method == http.MethodDelete {
+		queryMap := r.URL.Query()
+		did, _ := strconv.Atoi(queryMap["deal-id"][0])
+		bid, _ := strconv.Atoi(queryMap["bus-id"][0])
+
 		ok := a.DB.DeleteDealByIDs(did, bid)
 
 		if ok {
@@ -178,11 +177,12 @@ func (a *App) DeleteDeal(w http.ResponseWriter, r *http.Request) {
 // DealUpdate update deal status if owner wants to sell same product if was not deleted
 func (a *App) DealUpdate(w http.ResponseWriter, r *http.Request) {
 	// http://localhost:8080/api/my-business/deal/stat
-	var dealUpdate models.ActiveDeals
-
-	json.NewDecoder(r.Body).Decode(&dealUpdate)
 
 	if r.Method == http.MethodPatch {
+		var dealUpdate models.ActiveDeals
+
+		json.NewDecoder(r.Body).Decode(&dealUpdate)
+
 		ok := a.DB.UpdateDealStatus(&dealUpdate)
 
 		if ok {
