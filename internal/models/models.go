@@ -14,8 +14,9 @@ type BusinessAccount struct {
 
 // LogIn only email and password.
 type LogIn struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	BusinessID int    `json:"business_id"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
 }
 
 // ActiveDeal

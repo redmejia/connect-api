@@ -9,36 +9,48 @@ import (
 
 func (a *App) Signin(w http.ResponseWriter, r *http.Request) {
 
-	var business models.LogIn
+	if r.Method == http.MethodPost {
+		var business models.LogIn
 
-	err := json.NewDecoder(r.Body).Decode(&business)
-	if err != nil {
-		a.Error.Println(err)
+		err := json.NewDecoder(r.Body).Decode(&business)
+		if err != nil {
+			a.Error.Println(err)
+		}
+
+		businessAuthInfo := a.DB.GetAuthInfo(business.Email)
+
+		ok, err := utils.ComparePassword(businessAuthInfo.Password, business.Password)
+		if err != nil {
+			a.Error.Println(err)
+			return
+		}
+
+		if ok {
+			token, err := utils.GenToken(business.Email)
+			if err != nil {
+				a.Error.Println(err)
+				return
+			}
+
+			var success = struct {
+				IsLogedin bool   `json:"is_login"`
+				Token     string `json:"token"`
+			}{
+				IsLogedin: true,
+				Token:     token,
+			}
+
+			http.SetCookie(w, &http.Cookie{
+				Name:     "bus_jwt",
+				Value:    token,
+				HttpOnly: true,
+			})
+
+			data, err := json.Marshal(success)
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write(data)
+		}
 	}
-
-	token, err := utils.GenToken(business.Email)
-	if err != nil {
-		a.Error.Println(err)
-		return
-	}
-
-	var success = struct {
-		IsLogedin bool   `json:"is_login"`
-		Token     string `json:"token"`
-	}{
-		IsLogedin: true,
-		Token:     token,
-	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "bus_jwt",
-		Value:    token,
-		HttpOnly: true,
-	})
-
-	data, err := json.Marshal(success)
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
 
 }

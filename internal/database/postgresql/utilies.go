@@ -40,6 +40,38 @@ func (p *DbPostgres) GetMyBusinessInfoById(businessId int) *models.BusinessAccou
 	return &business
 }
 
+// GetAuthInfo
+func (p *DbPostgres) GetAuthInfo(email string) *models.LogIn {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `
+		select 
+			bus_id, 
+			email, 
+			password 
+		from 
+			login 
+		where email = $1
+	`
+	row := p.Db.QueryRowContext(ctx, query, email)
+
+	var business models.LogIn
+	err := row.Scan(
+		&business.BusinessID,
+		&business.Email,
+		&business.Password,
+	)
+
+	if err != nil {
+		p.Error.Println(err)
+		return &business
+	}
+
+	return &business
+
+}
+
 // UpdateProfile
 func (p *DbPostgres) UpdateProfile(business *models.BusinessAccount) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
