@@ -33,18 +33,20 @@ func (a *App) Signin(w http.ResponseWriter, r *http.Request) {
 			}
 
 			var success = struct {
-				IsLogedin bool   `json:"is_login"`
-				Token     string `json:"token"`
+				BusinessId int    `json:"business_id"`
+				IsAuth     bool   `json:"is_auth"`
+				Token      string `json:"token"`
 			}{
-				IsLogedin: true,
-				Token:     token,
+				BusinessId: businessAuthInfo.BusinessID,
+				IsAuth:     true,
+				Token:      token,
 			}
 
-			http.SetCookie(w, &http.Cookie{
-				Name:     "bus_jwt",
-				Value:    token,
-				HttpOnly: true,
-			})
+			// http.SetCookie(w, &http.Cookie{
+			// 	Name:     "bus_jwt",
+			// 	Value:    token,
+			// 	HttpOnly: true,
+			// })
 
 			data, err := json.Marshal(success)
 			w.Header().Add("Content-Type", "application/json")
