@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"connect/internal/models"
-	"connect/internal/utils"
+	"connect/utils"
 	"encoding/json"
 	"net/http"
 )
@@ -48,10 +48,13 @@ func (a *App) Signin(w http.ResponseWriter, r *http.Request) {
 			// 	HttpOnly: true,
 			// })
 
-			data, err := json.Marshal(success)
-			w.Header().Add("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			w.Write(data)
+			err = utils.WriteJson(w, http.StatusOK, "success", success)
+			if err != nil {
+				a.Error.Println(err)
+				return
+			}
+
+			a.Info.Println(success)
 		}
 	}
 

@@ -2,7 +2,7 @@ package postgresql
 
 import (
 	"connect/internal/models"
-	"connect/internal/utils"
+	"connect/utils"
 	"context"
 	"time"
 )

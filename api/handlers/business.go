@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"connect/internal/models"
+	"connect/utils"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -12,7 +14,7 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		// http://localhost:8080/api/my-business?bus-id=53
+		// http://localhost:8080/api/my/business?bus-id=53
 
 		businessId, err := strconv.Atoi(r.URL.Query().Get("bus-id"))
 		if err != nil {
@@ -22,16 +24,16 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 
 		business := a.DB.GetMyBusinessInfoById(businessId)
 
-		data, _ := json.Marshal(business)
+		err = utils.WriteJson(w, http.StatusOK, "myBusiness", business)
+		if err != nil {
+			a.Error.Println(err)
+			return
+		}
 
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(data)
-
-		a.Info.Println(string(data))
+		a.Info.Println(*business)
 
 	case http.MethodPost:
-		// http://localhost:8080/api/my-business
+		// http://localhost:8080/api/my/business
 
 		var newDeal models.Deal
 
@@ -41,12 +43,13 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 
 		if ok {
 
-			data, _ := json.Marshal(newDeal)
-			w.Header().Add("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			w.Write(data)
+			err := utils.WriteJson(w, http.StatusCreated, "myDeal", newDeal)
+			if err != nil {
+				a.Error.Println(err)
+				return
+			}
 
-			a.Info.Println(string(data))
+			a.Info.Println(newDeal)
 		}
 
 	case http.MethodPatch:
@@ -79,17 +82,13 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 
 		a.DB.UpdateProfile(myBusinessInfo)
 
-		data, err := json.Marshal(myBusinessInfo)
+		err = utils.WriteJson(w, http.StatusCreated, "myBusiness", myBusinessInfo)
 		if err != nil {
 			a.Error.Println(err)
 			return
 		}
 
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
-		w.Write(data)
-
-		a.Info.Println("upadted ", string(data))
+		a.Info.Println("upadted ", myBusinessInfo)
 
 	default:
 		w.Header().Add("Content-Type", "application/json")
@@ -101,23 +100,20 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 
 // DealsByType
 func (a *App) DealsByType(w http.ResponseWriter, r *http.Request) {
-	// http://localhost:8080/api/my-business/deals?type=fooddrink
+	// http://localhost:8080/api/my/business/deals?type=fooddrink
 
 	if r.Method == http.MethodGet {
 		businessType := r.URL.Query().Get("type")
 
-		dealsTye := a.DB.GetDealsByType(businessType)
+		dealsType := a.DB.GetDealsByType(businessType)
 
-		data, err := json.Marshal(dealsTye)
+		err := utils.WriteJson(w, http.StatusOK, "deals", dealsType)
 		if err != nil {
 			a.Error.Println(err)
 			return
 		}
 
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(data)
-		a.Info.Println(string(data))
+		a.Info.Println(*dealsType)
 
 	} else {
 		w.Header().Add("Content-Type", "application/json")
@@ -127,7 +123,7 @@ func (a *App) DealsByType(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) DealByIDs(w http.ResponseWriter, r *http.Request) {
-	// http://localhost:8080/api/my-business/deal?deal-id=17&bus-id=3
+	// http://localhost:8080/api/my/business/deal?deal-id=17&bus-id=3
 
 	if r.Method == http.MethodGet {
 		queryMap := r.URL.Query()
@@ -137,10 +133,14 @@ func (a *App) DealByIDs(w http.ResponseWriter, r *http.Request) {
 
 		deal := a.DB.GetDealsByIDs(did, bid)
 
-		data, _ := json.Marshal(deal)
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(data)
+		err := utils.WriteJson(w, http.StatusOK, "deal", deal)
+		if err != nil {
+			a.Error.Println(err)
+			return
+		}
+
+		a.Info.Println(deal)
+
 	} else {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -150,9 +150,15 @@ func (a *App) DealByIDs(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// Message
+type Message struct {
+	Error bool   `json:"error"`
+	Msg   string `json:"msg"`
+}
+
 // DeleteByIDs
 func (a *App) DeleteDeal(w http.ResponseWriter, r *http.Request) {
-	// http://localhost/api/my-business/del/deal?deal-id=15&bus-id=1
+	// http://localhost/api/my/business/del/deal?deal-id=15&bus-id=1
 
 	if r.Method == http.MethodDelete {
 		queryMap := r.URL.Query()
@@ -162,9 +168,18 @@ func (a *App) DeleteDeal(w http.ResponseWriter, r *http.Request) {
 		ok := a.DB.DeleteDealByIDs(did, bid)
 
 		if ok {
-			w.Header().Add("Content-Type", "application/json")
-			w.WriteHeader(http.StatusAccepted)
-			a.Info.Println("deal was deleted")
+			var message Message
+
+			message.Error = false
+			message.Msg = fmt.Sprintf("Deal No %d was deleted ", did)
+
+			err := utils.WriteJson(w, http.StatusAccepted, "deal", message)
+			if err != nil {
+				a.Error.Println(err)
+				return
+			}
+
+			a.Info.Println(message)
 		} else {
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
@@ -176,19 +191,28 @@ func (a *App) DeleteDeal(w http.ResponseWriter, r *http.Request) {
 
 // DealUpdate update deal status if owner wants to sell same product if was not deleted
 func (a *App) DealUpdate(w http.ResponseWriter, r *http.Request) {
-	// http://localhost:8080/api/my-business/deal/stat
+	// http://localhost:8080/api/my/business/deal/stat
 
 	if r.Method == http.MethodPatch {
 		var dealUpdate models.ActiveDeals
 
 		json.NewDecoder(r.Body).Decode(&dealUpdate)
-
 		ok := a.DB.UpdateDealStatus(&dealUpdate)
 
 		if ok {
-			w.Header().Add("Content-Type", "application/json")
-			w.WriteHeader(http.StatusAccepted)
-			a.Info.Println("updated")
+
+			var message Message
+			message.Error = false
+			message.Msg = fmt.Sprintf("Update deal status where ids No %d - %d", dealUpdate.DealID, dealUpdate.BusinessID)
+
+			err := utils.WriteJson(w, http.StatusAccepted, "deal", message)
+			if err != nil {
+				a.Error.Println(err)
+				return
+			}
+
+			a.Info.Println(dealUpdate)
+
 		} else {
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
@@ -196,4 +220,5 @@ func (a *App) DealUpdate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
 }

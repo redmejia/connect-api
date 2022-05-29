@@ -6,23 +6,21 @@ import (
 	"net/http"
 )
 
-// test map fake database
-// var DBs = make(map[string]models.BusinessAccount)
-
+// RegisterMyBusiness
 func (a *App) RegisterMyBusiness(w http.ResponseWriter, r *http.Request) {
-	var myBusinessAccount models.BusinessAccount
-
-	err := json.NewDecoder(r.Body).Decode(&myBusinessAccount)
-	if err != nil {
-		a.Error.Fatal(err)
-		return
-	}
 
 	if r.Method == http.MethodPost {
+
+		var myBusinessAccount models.BusinessAccount
+
+		err := json.NewDecoder(r.Body).Decode(&myBusinessAccount)
+		if err != nil {
+			a.Error.Fatal(err)
+			return
+		}
+
 		ok := a.DB.RegisterMyBusiness(&myBusinessAccount)
 		if ok {
-
-			// DBs["my-business"] = myBusinessAccount
 
 			data, err := json.Marshal(&myBusinessAccount)
 			if err != nil {
@@ -41,4 +39,5 @@ func (a *App) RegisterMyBusiness(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 
 	}
+
 }
