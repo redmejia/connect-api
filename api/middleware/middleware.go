@@ -20,7 +20,7 @@ func IsAuthorizationToken(next http.HandlerFunc) http.HandlerFunc {
 		token, err := jwt.Parse(authToken[1], func(token *jwt.Token) (interface{}, error) {
 			_, ok := token.Method.(*jwt.SigningMethodHMAC)
 			if !ok {
-				return nil, fmt.Errorf("Some error")
+				return nil, fmt.Errorf("error parsing")
 			}
 
 			return []byte(os.Getenv("JWT_KEY")), nil
