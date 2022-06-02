@@ -87,7 +87,7 @@ func Cors(next http.Handler) http.Handler {
 				w.Header().Add("Access-Control-Allow-Credentials", "true")
 
 				if r.Method == http.MethodOptions && r.Header.Get("Access-Control-Request-Method") != "" {
-					w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, POST, PATCH, PUT, DELETE, GET")
+					w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, POST, PATCH, PUT, DELETE")
 					w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 
 					w.WriteHeader(http.StatusOK)
