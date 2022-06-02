@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -19,7 +20,7 @@ type Message struct {
 func IsAuthorizationToken(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		autorization := r.Header.Get("Authorization")
-
+		log.Println("new req ", autorization)
 		if len(autorization) > 0 {
 
 			authToken := strings.Split(autorization, " ")
@@ -66,5 +67,35 @@ func IsAuthorizationToken(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
+	})
+}
+
+func Cors(next http.Handler) http.Handler {
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		origin := r.Header.Get("Origin")
+
+		if origin != "" {
+
+			if origin == "http://localhost:3000" {
+
+				w.Header().Add("Vary", "Origin")
+				w.Header().Add("Vary", "Access-Control-Request-Method")
+
+				w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+				w.Header().Add("Access-Control-Allow-Credentials", "true")
+
+				if r.Method == http.MethodOptions && r.Header.Get("Access-Control-Request-Method") != "" {
+					w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, POST, PATCH, PUT, DELETE, GET")
+					w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+
+					w.WriteHeader(http.StatusOK)
+					return
+				}
+			}
+		}
+
+		next.ServeHTTP(w, r)
 	})
 }

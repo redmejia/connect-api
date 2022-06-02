@@ -5,6 +5,7 @@ import (
 	"connect/utils"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -90,6 +91,9 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 
 		a.Info.Println("upadted ", myBusinessInfo)
 
+	case http.MethodOptions:
+		return
+
 	default:
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -102,7 +106,11 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 func (a *App) DealsByType(w http.ResponseWriter, r *http.Request) {
 	// http://localhost:8080/api/my/business/deals?type=fooddrink
 
-	if r.Method == http.MethodGet {
+	if r.Method == http.MethodOptions {
+		log.Println("you are here now")
+		return
+	} else {
+
 		businessType := r.URL.Query().Get("type")
 
 		dealsType := a.DB.GetDealsByType(businessType)
@@ -114,12 +122,35 @@ func (a *App) DealsByType(w http.ResponseWriter, r *http.Request) {
 		}
 
 		a.Info.Println(*dealsType)
-
-	} else {
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		a.Error.Println("not found ")
 	}
+	// switch r.Method {
+	// case http.MethodGet:
+
+	// 	businessType := r.URL.Query().Get("type")
+
+	// 	dealsType := a.DB.GetDealsByType(businessType)
+
+	// 	w.Header().Add("Content-Type", "application/json")
+	// 	err := json.NewEncoder(w).Encode(dealsType)
+	// 	// err := utils.WriteJson(w, http.StatusOK, "deals", dealsType)
+	// 	if err != nil {
+	// 		a.Error.Println(err)
+	// 		return
+	// 	}
+
+	// 	a.Info.Println(*dealsType)
+	// case http.MethodOptions:
+	// 	log.Println("OPTIONBS")
+	// 	return
+	// default:
+	// 	return
+	// }
+
+	// else {
+	// 	w.Header().Add("Content-Type", "application/json")
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	a.Error.Println("not found ")
+	// }
 }
 
 func (a *App) DealByIDs(w http.ResponseWriter, r *http.Request) {
@@ -140,6 +171,9 @@ func (a *App) DealByIDs(w http.ResponseWriter, r *http.Request) {
 		}
 
 		a.Info.Println(deal)
+
+	} else if r.Method == http.MethodOptions {
+		return
 
 	} else {
 		w.Header().Add("Content-Type", "application/json")
@@ -180,6 +214,8 @@ func (a *App) DeleteDeal(w http.ResponseWriter, r *http.Request) {
 			}
 
 			a.Info.Println(message)
+		} else if r.Method == http.MethodOptions {
+			return
 		} else {
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
