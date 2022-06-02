@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -20,7 +19,7 @@ type Message struct {
 func IsAuthorizationToken(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		autorization := r.Header.Get("Authorization")
-		log.Println("new req ", autorization)
+
 		if len(autorization) > 0 {
 
 			authToken := strings.Split(autorization, " ")
