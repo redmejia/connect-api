@@ -35,18 +35,26 @@ func IsAuthorizationToken(next http.HandlerFunc) http.HandlerFunc {
 			})
 
 			if err != nil {
+				var message Message
 				if errors.Is(err, jwt.ErrTokenExpired) {
-					var message Message
 					message.Error = true
 					message.Msg = "Session expired"
 
 					w.Header().Add("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
+					w.WriteHeader(http.StatusInternalServerError)
 
 					json.NewEncoder(w).Encode(message)
 					return
 				}
 
+				if errors.Is(err, jwt.ErrTokenMalformed) {
+					message.Error = true
+					message.Msg = "Token invalid"
+
+					w.WriteHeader(http.StatusInternalServerError)
+					json.NewEncoder(w).Encode(message)
+					return
+				}
 			}
 
 			_, ok := token.Claims.(jwt.MapClaims)

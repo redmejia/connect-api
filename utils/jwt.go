@@ -12,8 +12,9 @@ func GenToken(email string) (string, error) {
 
 	claims := t.Claims.(jwt.MapClaims)
 
+	claims["authorized"] = true
 	claims["email"] = email
-	claims["expires"] = time.Now().Add(time.Minute * 20).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * 20).Unix()
 
 	token, err := t.SignedString([]byte(os.Getenv("JWT_KEY")))
 	if err != nil {
