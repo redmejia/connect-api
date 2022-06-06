@@ -33,13 +33,15 @@ func (a *App) Signin(w http.ResponseWriter, r *http.Request) {
 			}
 
 			var success = struct {
-				BusinessId int    `json:"business_id"`
-				IsAuth     bool   `json:"is_auth"`
-				Token      string `json:"token"`
+				BusinessId   int    `json:"business_id"`
+				BusinessName string `json:"business_name"`
+				IsAuth       bool   `json:"is_auth"`
+				Token        string `json:"token"`
 			}{
-				BusinessId: businessAuthInfo.BusinessID,
-				IsAuth:     true,
-				Token:      token,
+				BusinessId:   businessAuthInfo.BusinessID,
+				BusinessName: businessAuthInfo.BusinessName,
+				IsAuth:       true,
+				Token:        token,
 			}
 
 			// http.SetCookie(w, &http.Cookie{

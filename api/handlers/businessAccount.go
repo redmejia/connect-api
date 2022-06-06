@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"connect/internal/models"
+	"connect/utils"
 	"encoding/json"
 	"net/http"
 )
@@ -15,24 +16,36 @@ func (a *App) RegisterMyBusiness(w http.ResponseWriter, r *http.Request) {
 
 		err := json.NewDecoder(r.Body).Decode(&myBusinessAccount)
 		if err != nil {
-			a.Error.Fatal(err)
-			return
+			a.Error.Println(err)
 		}
 
-		ok := a.DB.RegisterMyBusiness(&myBusinessAccount)
+		a.Info.Println(myBusinessAccount)
+
+		businessID, ok := a.DB.RegisterMyBusiness(&myBusinessAccount)
 		if ok {
 
-			data, err := json.Marshal(&myBusinessAccount)
+			token, err := utils.GenToken(myBusinessAccount.Email)
 			if err != nil {
 				a.Error.Println(err)
 				return
 			}
 
-			w.Header().Add("Content-Type", "application/json")
-			w.WriteHeader(http.StatusCreated)
-			// w.Write(data)
+			var success = struct {
+				BusinessId int    `json:"business_id"`
+				IsAuth     bool   `json:"is_auth"`
+				Token      string `json:"token"`
+			}{
+				BusinessId: businessID,
+				IsAuth:     true,
+				Token:      token,
+			}
 
-			a.Info.Println(string(data))
+			err = utils.WriteJson(w, http.StatusOK, "success", success)
+			if err != nil {
+				a.Error.Println(err)
+				return
+			}
+			a.Info.Println(success)
 		}
 	} else {
 		w.Header().Add("Content-Type", "application/json")

@@ -47,18 +47,24 @@ func (p *DbPostgres) GetAuthInfo(email string) *models.LogIn {
 
 	query := `
 		select 
-			bus_id, 
-			email, 
-			password 
+			l.bus_id,
+			ba.bus_name,
+			l.email, 
+			l.password 
 		from 
-			login 
-		where email = $1
+			login as l
+		join
+			business_account as ba
+		on 
+			l.bus_id = ba.bus_id
+		where l.email = $1
 	`
 	row := p.Db.QueryRowContext(ctx, query, email)
 
 	var business models.LogIn
 	err := row.Scan(
 		&business.BusinessID,
+		&business.BusinessName,
 		&business.Email,
 		&business.Password,
 	)
@@ -303,14 +309,14 @@ func (p *DbPostgres) UpdateDealStatus(dealStatus *models.ActiveDeals) bool {
 }
 
 // RegisterMyBusiness
-func (p *DbPostgres) RegisterMyBusiness(newBusiness *models.BusinessAccount) bool {
+func (p *DbPostgres) RegisterMyBusiness(newBusiness *models.BusinessAccount) (int, bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	tx, err := p.Db.BeginTx(ctx, nil)
 	if err != nil {
 		p.Error.Println(err)
-		return false
+		return 0, false
 	}
 	defer tx.Rollback()
 
@@ -325,7 +331,7 @@ func (p *DbPostgres) RegisterMyBusiness(newBusiness *models.BusinessAccount) boo
 	passwordHash, err := utils.HashPassword(newBusiness.Password)
 	if err != nil {
 		p.Error.Println(err)
-		return false
+		return 0, false
 	}
 
 	row := tx.QueryRowContext(
@@ -341,7 +347,7 @@ func (p *DbPostgres) RegisterMyBusiness(newBusiness *models.BusinessAccount) boo
 	err = row.Scan(&businessId)
 	if err != nil {
 		p.Error.Println(err)
-		return false
+		return 0, false
 	}
 
 	_, err = tx.ExecContext(ctx, `
@@ -352,13 +358,13 @@ func (p *DbPostgres) RegisterMyBusiness(newBusiness *models.BusinessAccount) boo
 
 	if err != nil {
 		p.Error.Println(err)
-		return false
+		return 0, false
 	}
 
 	err = tx.Commit()
 	if err != nil {
 		p.Error.Println(err)
-		return false
+		return 0, false
 	}
-	return true
+	return businessId, true
 }

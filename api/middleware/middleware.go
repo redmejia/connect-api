@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -39,6 +40,7 @@ func IsAuthorizationToken(next http.HandlerFunc) http.HandlerFunc {
 				if errors.Is(err, jwt.ErrTokenExpired) {
 					message.Error = true
 					message.Msg = "Session expired"
+					log.Println(message.Msg)
 
 					w.Header().Add("Content-Type", "application/json")
 					w.WriteHeader(http.StatusInternalServerError)
