@@ -16,6 +16,7 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
+		// Get the business information
 		// http://localhost:8080/api/my/business?bus-id=53
 
 		businessId, err := strconv.Atoi(r.URL.Query().Get("bus-id"))
@@ -95,10 +96,30 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 
 		a.Info.Println("upadted ", myBusinessInfo)
 
-	case http.MethodOptions:
-		return
-
 	default:
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		a.Info.Println("not found")
+	}
+
+}
+
+// MyDealsOrOffer
+func (a *App) MyDealsOrOffer(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		// http://localhost:8080/api/my/business/my/deals?bus-id=1
+		businessId, _ := strconv.Atoi(r.URL.Query().Get("bus-id"))
+
+		myDealsOrOffer := a.DB.GetMyDealOrOffer(businessId)
+
+		err := utils.WriteJson(w, http.StatusOK, "myDeals", myDealsOrOffer)
+		if err != nil {
+			a.Error.Println(err)
+		}
+
+		a.Info.Println(*myDealsOrOffer)
+
+	} else {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		a.Info.Println("not found")
@@ -110,10 +131,8 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 func (a *App) DealsByType(w http.ResponseWriter, r *http.Request) {
 	// http://localhost:8080/api/my/business/deals?type=fooddrink
 
-	if r.Method == http.MethodOptions {
-		log.Println("you are here now")
-		return
-	} else {
+	switch r.Method {
+	case http.MethodGet:
 
 		businessType := r.URL.Query().Get("type")
 
@@ -126,35 +145,13 @@ func (a *App) DealsByType(w http.ResponseWriter, r *http.Request) {
 		}
 
 		a.Info.Println(*dealsType)
+	case http.MethodOptions:
+		log.Println("OPTIONBS")
+		return
+	default:
+		return
 	}
-	// switch r.Method {
-	// case http.MethodGet:
 
-	// 	businessType := r.URL.Query().Get("type")
-
-	// 	dealsType := a.DB.GetDealsByType(businessType)
-
-	// 	w.Header().Add("Content-Type", "application/json")
-	// 	err := json.NewEncoder(w).Encode(dealsType)
-	// 	// err := utils.WriteJson(w, http.StatusOK, "deals", dealsType)
-	// 	if err != nil {
-	// 		a.Error.Println(err)
-	// 		return
-	// 	}
-
-	// 	a.Info.Println(*dealsType)
-	// case http.MethodOptions:
-	// 	log.Println("OPTIONBS")
-	// 	return
-	// default:
-	// 	return
-	// }
-
-	// else {
-	// 	w.Header().Add("Content-Type", "application/json")
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	a.Error.Println("not found ")
-	// }
 }
 
 func (a *App) DealByIDs(w http.ResponseWriter, r *http.Request) {

@@ -12,6 +12,7 @@ func Routes(app *handlers.App) http.Handler {
 	mux.HandleFunc("/api/login", app.Signin)
 
 	mux.HandleFunc("/api/my/business", middleware.IsAuthorizationToken(app.BusinessProfile))
+	mux.HandleFunc("/api/my/business/my/deals", middleware.IsAuthorizationToken(app.MyDealsOrOffer))
 
 	mux.HandleFunc("/api/my/business/deals", middleware.IsAuthorizationToken(app.DealsByType))
 	mux.HandleFunc("/api/my/business/deal", middleware.IsAuthorizationToken(app.DealByIDs))

@@ -40,6 +40,65 @@ func (p *DbPostgres) GetMyBusinessInfoById(businessId int) *models.BusinessAccou
 	return &business
 }
 
+func (p *DbPostgres) GetMyDealOrOffer(businessId int) *[]models.Deal {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT 
+			nd.deal_id, nd.bus_id, ba.bus_name, nd.bus_type, nd.pro_name, nd.pro_description, nd.created_at, nd.price,
+			a.deal_id, a.bus_id, a.active, a.sold
+		FROM 
+			new_deal AS nd
+		JOIN 
+			active AS a
+		ON 
+			nd.deal_id = a.deal_id
+		JOIN
+			business_account AS ba
+		ON 
+			nd.bus_id = ba.bus_id
+		WHERE 
+			nd.bus_id = $1
+		`
+
+	var myDealsOffer []models.Deal
+
+	rows, err := p.Db.QueryContext(ctx, query, businessId)
+	if err != nil {
+		p.Error.Println(err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var deal models.Deal
+
+		err := rows.Scan(
+			&deal.DealID,
+			&deal.BusinessID,
+			&deal.BusinessName,
+			&deal.BusinessType,
+			&deal.ProductName,
+			&deal.DealDescription,
+			&deal.DealStart,
+			&deal.Price,
+			&deal.IsActive.DealID,
+			&deal.IsActive.BusinessID,
+			&deal.IsActive.DealIsActive,
+			&deal.IsActive.Sold,
+		)
+
+		if err != nil {
+			p.Error.Println(err)
+		}
+
+		myDealsOffer = append(myDealsOffer, deal)
+	}
+
+	return &myDealsOffer
+}
+
 // GetAuthInfo
 func (p *DbPostgres) GetAuthInfo(email string) *models.LogIn {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
