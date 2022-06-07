@@ -16,6 +16,7 @@ type BusinessAccount struct {
 type LogIn struct {
 	BusinessID   int    `json:"business_id"`
 	BusinessName string `json:"business_name"`
+	BusinessType string `json:"business_type"`
 	Email        string `json:"email"`
 	Password     string `json:"password"`
 }

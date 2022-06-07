@@ -35,11 +35,13 @@ func (a *App) Signin(w http.ResponseWriter, r *http.Request) {
 			var success = struct {
 				BusinessId   int    `json:"business_id"`
 				BusinessName string `json:"business_name"`
+				BusinessType string `json:"business_type"`
 				IsAuth       bool   `json:"is_auth"`
 				Token        string `json:"token"`
 			}{
 				BusinessId:   businessAuthInfo.BusinessID,
 				BusinessName: businessAuthInfo.BusinessName,
+				BusinessType: businessAuthInfo.BusinessType,
 				IsAuth:       true,
 				Token:        token,
 			}

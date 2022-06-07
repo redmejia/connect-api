@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // BusinessProfile For creating a profile, updating information and creating new deal.
@@ -40,9 +41,12 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 
 		json.NewDecoder(r.Body).Decode(&newDeal)
 
-		ok := a.DB.CreateNewDeal(&newDeal)
+		dealId, ok := a.DB.CreateNewDeal(&newDeal)
 
 		if ok {
+
+			newDeal.DealID = dealId
+			newDeal.DealStart = time.Now()
 
 			err := utils.WriteJson(w, http.StatusCreated, "myDeal", newDeal)
 			if err != nil {

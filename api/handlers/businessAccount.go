@@ -21,7 +21,7 @@ func (a *App) RegisterMyBusiness(w http.ResponseWriter, r *http.Request) {
 
 		a.Info.Println(myBusinessAccount)
 
-		businessID, ok := a.DB.RegisterMyBusiness(&myBusinessAccount)
+		basicInfo, ok := a.DB.RegisterMyBusiness(&myBusinessAccount)
 		if ok {
 
 			token, err := utils.GenToken(myBusinessAccount.Email)
@@ -31,14 +31,28 @@ func (a *App) RegisterMyBusiness(w http.ResponseWriter, r *http.Request) {
 			}
 
 			var success = struct {
-				BusinessId int    `json:"business_id"`
-				IsAuth     bool   `json:"is_auth"`
-				Token      string `json:"token"`
+				BusinessId   int    `json:"business_id"`
+				BusinessName string `json:"business_name"`
+				BusinessType string `json:"business_type"`
+				IsAuth       bool   `json:"is_auth"`
+				Token        string `json:"token"`
 			}{
-				BusinessId: businessID,
-				IsAuth:     true,
-				Token:      token,
+				BusinessId:   basicInfo.BusinessID,
+				BusinessName: basicInfo.BusinessName,
+				BusinessType: basicInfo.BusinessType,
+				IsAuth:       true,
+				Token:        token,
 			}
+
+			// var success = struct {
+			// 	BusinessId int    `json:"business_id"`
+			// 	IsAuth     bool   `json:"is_auth"`
+			// 	Token      string `json:"token"`
+			// }{
+			// 	BusinessId: businessID,
+			// 	IsAuth:     true,
+			// 	Token:      token,
+			// }
 
 			err = utils.WriteJson(w, http.StatusOK, "success", success)
 			if err != nil {
