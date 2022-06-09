@@ -112,12 +112,25 @@ func (a *App) MyDealsOrOffer(w http.ResponseWriter, r *http.Request) {
 
 		myDealsOrOffer := a.DB.GetMyDealOrOffer(businessId)
 
-		err := utils.WriteJson(w, http.StatusOK, "myDeals", myDealsOrOffer)
-		if err != nil {
-			a.Error.Println(err)
-		}
+		if len(*myDealsOrOffer) == 0 {
 
-		a.Info.Println(*myDealsOrOffer)
+			emptydeal := []models.Deal{}
+			err := utils.WriteJson(w, http.StatusOK, "myDeals", emptydeal)
+			if err != nil {
+				a.Error.Println(err)
+			}
+
+			a.Info.Println(*myDealsOrOffer)
+
+		} else {
+
+			err := utils.WriteJson(w, http.StatusOK, "myDeals", myDealsOrOffer)
+			if err != nil {
+				a.Error.Println(err)
+			}
+
+			a.Info.Println(*myDealsOrOffer)
+		}
 
 	} else {
 		w.Header().Add("Content-Type", "application/json")
@@ -145,9 +158,6 @@ func (a *App) DealsByType(w http.ResponseWriter, r *http.Request) {
 		}
 
 		a.Info.Println(*dealsType)
-	case http.MethodOptions:
-		log.Println("OPTIONBS")
-		return
 	default:
 		return
 	}
@@ -173,9 +183,6 @@ func (a *App) DealByIDs(w http.ResponseWriter, r *http.Request) {
 
 		a.Info.Println(deal)
 
-	} else if r.Method == http.MethodOptions {
-		return
-
 	} else {
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -200,6 +207,8 @@ func (a *App) DeleteDeal(w http.ResponseWriter, r *http.Request) {
 		did, _ := strconv.Atoi(queryMap["deal-id"][0])
 		bid, _ := strconv.Atoi(queryMap["bus-id"][0])
 
+		log.Println(did, bid)
+
 		ok := a.DB.DeleteDealByIDs(did, bid)
 
 		if ok {
@@ -208,15 +217,13 @@ func (a *App) DeleteDeal(w http.ResponseWriter, r *http.Request) {
 			message.Error = false
 			message.Msg = fmt.Sprintf("Deal No %d was deleted ", did)
 
-			err := utils.WriteJson(w, http.StatusAccepted, "deal", message)
-			if err != nil {
-				a.Error.Println(err)
-				return
-			}
+			// err := utils.WriteJson(w, http.StatusAccepted, "deal", message)
+			// if err != nil {
+			// 	a.Error.Println(err)
+			// 	return
+			// }
 
 			a.Info.Println(message)
-		} else if r.Method == http.MethodOptions {
-			return
 		} else {
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)

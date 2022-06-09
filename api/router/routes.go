@@ -17,7 +17,7 @@ func Routes(app *handlers.App) http.Handler {
 	mux.HandleFunc("/api/my/business/deals", middleware.IsAuthorizationToken(app.DealsByType))
 	mux.HandleFunc("/api/my/business/deal", middleware.IsAuthorizationToken(app.DealByIDs))
 
-	mux.Handle("/api/my/business/del/deal", middleware.IsAuthorizationToken(app.DeleteDeal))
+	mux.HandleFunc("/api/my/business/del/deal", middleware.IsAuthorizationToken(app.DeleteDeal))
 	mux.Handle("/api/my/business/deal/stat", middleware.IsAuthorizationToken(app.DealUpdate))
 
 	return middleware.Cors(mux)
