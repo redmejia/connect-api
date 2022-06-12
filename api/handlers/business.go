@@ -5,7 +5,6 @@ import (
 	"connect/utils"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -95,7 +94,6 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 		}
 
 		a.Info.Println("upadted ", myBusinessInfo)
-
 	default:
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -106,7 +104,10 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 
 // MyDealsOrOffer
 func (a *App) MyDealsOrOffer(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
+
+	switch r.Method {
+	case http.MethodGet:
+
 		// http://localhost:8080/api/my/business/my/deals?bus-id=1
 		businessId, _ := strconv.Atoi(r.URL.Query().Get("bus-id"))
 
@@ -132,12 +133,40 @@ func (a *App) MyDealsOrOffer(w http.ResponseWriter, r *http.Request) {
 			a.Info.Println(*myDealsOrOffer)
 		}
 
-	} else {
+	case http.MethodPatch:
+		var myDeal models.Deal
+
+		json.NewDecoder(r.Body).Decode(&myDeal)
+
+		deal := a.DB.GetDealsByIDs(myDeal.DealID, myDeal.BusinessID)
+
+		if len(myDeal.ProductName) != 0 && myDeal.ProductName != deal.ProductName {
+			deal.ProductName = myDeal.ProductName
+		}
+
+		if len(myDeal.DealDescription) != 0 && myDeal.DealDescription != deal.DealDescription {
+			deal.DealDescription = myDeal.DealDescription
+		}
+
+		if myDeal.Price > 0 && myDeal.Price != deal.Price {
+			deal.Price = myDeal.Price
+
+		}
+
+		ok := a.DB.UpdateMyDealOrOffer(&deal)
+		if ok {
+			err := utils.WriteJson(w, http.StatusAccepted, "myDeal", deal)
+			if err != nil {
+				a.Error.Println(err)
+			}
+			a.Info.Println(deal)
+		}
+
+	default:
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		a.Info.Println("not found")
 	}
-
 }
 
 // DealsByType
@@ -206,8 +235,6 @@ func (a *App) DeleteDeal(w http.ResponseWriter, r *http.Request) {
 		queryMap := r.URL.Query()
 		did, _ := strconv.Atoi(queryMap["deal-id"][0])
 		bid, _ := strconv.Atoi(queryMap["bus-id"][0])
-
-		log.Println(did, bid)
 
 		ok := a.DB.DeleteDealByIDs(did, bid)
 

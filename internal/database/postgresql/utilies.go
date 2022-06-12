@@ -167,6 +167,34 @@ func (p *DbPostgres) UpdateProfile(business *models.BusinessAccount) {
 	}
 }
 
+// UpdateMyDealOrOffer for updtating deal afert created
+func (p *DbPostgres) UpdateMyDealOrOffer(deal *models.Deal) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `
+		update new_deal 
+		set pro_name = $1, pro_description = $2, price = $3
+		where deal_id = $4;
+	`
+
+	_, err := p.Db.ExecContext(
+		ctx,
+		query,
+		deal.ProductName,
+		deal.DealDescription,
+		deal.Price,
+		deal.DealID,
+	)
+
+	if err != nil {
+		p.Error.Panicln(err)
+		return false
+	}
+
+	return true
+}
+
 // CreateNewDeal
 func (p *DbPostgres) CreateNewDeal(deal *models.Deal) (int, bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
