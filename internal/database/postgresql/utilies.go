@@ -253,7 +253,7 @@ func (p *DbPostgres) GetDealsByType(businessType string) *[]models.Deal {
 
 	query := `
 		select 
-			nd.deal_id, nd.bus_id, nd.bus_type, 
+			nd.deal_id, nd.bus_id, ba.bus_name, nd.bus_type, 
 			nd.pro_name, nd.pro_description, nd.created_at, nd.price,
 			a.deal_id, a.bus_id, a.active, a.sold
 		from
@@ -262,6 +262,10 @@ func (p *DbPostgres) GetDealsByType(businessType string) *[]models.Deal {
 			active as a
 		on 
 			nd.deal_id = a.deal_id
+		join 
+			business_account as ba
+		on
+			nd.bus_id = ba.bus_id
 		where 
 			nd.bus_type = $1;
 		`
@@ -280,6 +284,7 @@ func (p *DbPostgres) GetDealsByType(businessType string) *[]models.Deal {
 		err := rows.Scan(
 			&deal.DealID,
 			&deal.BusinessID,
+			&deal.BusinessName,
 			&deal.BusinessType,
 			&deal.ProductName,
 			&deal.DealDescription,
