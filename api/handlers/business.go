@@ -24,15 +24,15 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		business := a.DB.GetMyBusinessInfoById(businessId)
+		myBusiness := a.DB.GetMyBusinessInfo(businessId)
 
-		err = utils.WriteJson(w, http.StatusOK, "myBusiness", business)
+		err = utils.WriteJson(w, http.StatusOK, "myBusiness", *myBusiness)
 		if err != nil {
 			a.Error.Println(err)
 			return
 		}
 
-		a.Info.Println(*business)
+		a.Info.Println("YOU ARE HERE", *myBusiness)
 
 	case http.MethodPost:
 		// http://localhost:8080/api/my/business
@@ -87,7 +87,9 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 
 		a.DB.UpdateProfile(myBusinessInfo)
 
-		err = utils.WriteJson(w, http.StatusCreated, "myBusiness", myBusinessInfo)
+		myBusiness := a.DB.GetMyBusinessInfo(myBusinessInfo.BusinessID)
+
+		err = utils.WriteJson(w, http.StatusCreated, "myBusiness", *myBusiness)
 		if err != nil {
 			a.Error.Println(err)
 			return

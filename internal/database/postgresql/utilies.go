@@ -7,7 +7,110 @@ import (
 	"time"
 )
 
-// GetBusinessInfoById get the business information
+// GetMyBusinessInfo get business information include business basic info and deals
+func (p *DbPostgres) GetMyBusinessInfo(businessId int) *models.MyBusiness {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	tx, err := p.Db.BeginTx(ctx, nil)
+	if err != nil {
+		p.Error.Println(err)
+	}
+	defer tx.Rollback()
+
+	queryMyBusiness := `
+		select 
+			bus_id, bus_name, bus_type, email, founded
+		from
+			business_account
+		where 
+			bus_id = $1
+		`
+	row := p.Db.QueryRowContext(ctx, queryMyBusiness, businessId)
+
+	var business models.BusinessAccount
+
+	err = row.Scan(
+		&business.BusinessID,
+		&business.BusinessName,
+		&business.BusinessType,
+		&business.Email,
+		&business.Founded,
+	)
+
+	if err != nil {
+		p.Error.Println(err)
+	}
+
+	queryMyDeals := `
+		SELECT 
+			nd.deal_id, nd.bus_id, ba.bus_name, nd.bus_type, nd.pro_name, nd.pro_description, nd.created_at, nd.price,
+			a.deal_id, a.bus_id, a.active, a.sold
+		FROM 
+			new_deal AS nd
+		JOIN 
+			active AS a
+		ON 
+			nd.deal_id = a.deal_id
+		JOIN
+			business_account AS ba
+		ON 
+			nd.bus_id = ba.bus_id
+		WHERE 
+			nd.bus_id = $1
+		`
+
+	var myDealsOffer []models.Deal
+
+	rows, err := p.Db.QueryContext(ctx, queryMyDeals, businessId)
+	if err != nil {
+		p.Error.Println(err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var deal models.Deal
+
+		err := rows.Scan(
+			&deal.DealID,
+			&deal.BusinessID,
+			&deal.BusinessName,
+			&deal.BusinessType,
+			&deal.ProductName,
+			&deal.DealDescription,
+			&deal.DealStart,
+			&deal.Price,
+			&deal.IsActive.DealID,
+			&deal.IsActive.BusinessID,
+			&deal.IsActive.DealIsActive,
+			&deal.IsActive.Sold,
+		)
+
+		if err != nil {
+			p.Error.Println(err)
+		}
+
+		myDealsOffer = append(myDealsOffer, deal)
+	}
+
+	var myBusiness models.MyBusiness
+	myBusiness.BusinessInformation = business
+
+	if len(myDealsOffer) == 0 {
+		myBusiness.MyDeals = []models.Deal{}
+	} else {
+		myBusiness.MyDeals = myDealsOffer
+	}
+	err = tx.Commit()
+	if err != nil {
+		p.Error.Println(err)
+	}
+
+	return &myBusiness
+}
+
+// GetBusinessInfoById get the business basic information
 func (p *DbPostgres) GetMyBusinessInfoById(businessId int) *models.BusinessAccount {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -40,6 +143,7 @@ func (p *DbPostgres) GetMyBusinessInfoById(businessId int) *models.BusinessAccou
 	return &business
 }
 
+// GetMyDealOrOffer get all business deals
 func (p *DbPostgres) GetMyDealOrOffer(businessId int) *[]models.Deal {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()

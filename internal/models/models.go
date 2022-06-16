@@ -41,3 +41,8 @@ type Deal struct {
 	IsActive        ActiveDeals `json:"is_active"`
 	Price           float64     `json:"price"`
 }
+
+type MyBusiness struct {
+	BusinessInformation BusinessAccount `json:"my_business"`
+	MyDeals             []Deal          `json:"my_deals"`
+}
