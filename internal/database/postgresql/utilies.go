@@ -248,6 +248,12 @@ func (p *DbPostgres) UpdateProfile(business *models.BusinessAccount) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
+	tx, err := p.Db.BeginTx(ctx, nil)
+	if err != nil {
+		p.Error.Fatal(err)
+	}
+	defer tx.Rollback()
+
 	query := `
 		update business_account 
 			set bus_name = $1, bus_type = $2,  email = $3, founded = $4
@@ -255,7 +261,7 @@ func (p *DbPostgres) UpdateProfile(business *models.BusinessAccount) {
 			bus_id = $5
 	`
 
-	_, err := p.Db.ExecContext(
+	_, err = p.Db.ExecContext(
 		ctx,
 		query,
 		business.BusinessName,
@@ -269,6 +275,25 @@ func (p *DbPostgres) UpdateProfile(business *models.BusinessAccount) {
 		p.Error.Println(err)
 		return
 	}
+
+	queryLogin := `
+		update login
+		set email = $1
+		where bus_id = $2
+	`
+
+	_, err = p.Db.ExecContext(ctx, queryLogin, business.Email, business.BusinessID)
+	if err != nil {
+		p.Error.Println(err)
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		p.Error.Println(err)
+		return
+	}
+
 }
 
 // UpdateMyDealOrOffer for updtating deal afert created

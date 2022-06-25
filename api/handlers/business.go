@@ -32,8 +32,6 @@ func (a *App) BusinessProfile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		a.Info.Println("YOU ARE HERE", *myBusiness)
-
 	case http.MethodPost:
 		// http://localhost:8080/api/my/business
 
@@ -246,13 +244,12 @@ func (a *App) DeleteDeal(w http.ResponseWriter, r *http.Request) {
 			message.Error = false
 			message.Msg = fmt.Sprintf("Deal No %d was deleted ", did)
 
-			// err := utils.WriteJson(w, http.StatusAccepted, "deal", message)
-			// if err != nil {
-			// 	a.Error.Println(err)
-			// 	return
-			// }
+			err := utils.WriteJson(w, http.StatusAccepted, "deal", message)
+			if err != nil {
+				a.Error.Println(err)
+				return
+			}
 
-			a.Info.Println(message)
 		} else {
 			w.Header().Add("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
