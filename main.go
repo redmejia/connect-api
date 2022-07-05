@@ -38,6 +38,7 @@ func main() {
 		Handler: router.Routes(&app),
 	}
 
+	fmt.Println("server test")
 	fmt.Println("Server is runnin at :8080")
 	err = srv.ListenAndServe()
 	if err != nil {
