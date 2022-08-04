@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -27,11 +28,15 @@ func ConnectionPing(db *sql.DB) (bool, error) {
 
 // Connection
 func Connection() (*sql.DB, error) {
-	port, _ := strconv.Atoi(os.Getenv("DBPORT"))
 	// connDB := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 	// 	os.Getenv("HOSTNAME"), port, os.Getenv("DBUSER"), os.Getenv("DBPASSWORD"),
 	// 	os.Getenv("DBNAME"), os.Getenv("DBSSLMODE"),
 	// )
+	port, _ := strconv.Atoi(os.Getenv("DBPORT"))
+	connDB := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s",
+		os.Getenv("HOSTNAME"), port, os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"),
+		os.Getenv("POSTGRES_DB"),
+	)
 
 	db, err := sql.Open("pgx", connDB)
 	if err != nil {
