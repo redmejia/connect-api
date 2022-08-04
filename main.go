@@ -12,11 +12,11 @@ import (
 
 func main() {
 	db, err := postgresql.Connection()
-	defer db.Close()
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
+	defer db.Close()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime)
@@ -38,7 +38,6 @@ func main() {
 		Handler: router.Routes(&app),
 	}
 
-	fmt.Println("Server is runnin at :8080")
 	err = srv.ListenAndServe()
 	if err != nil {
 		fmt.Println(err)
