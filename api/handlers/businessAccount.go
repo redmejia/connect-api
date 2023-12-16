@@ -43,7 +43,6 @@ func (a *App) RegisterMyBusiness(w http.ResponseWriter, r *http.Request) {
 				IsAuth:       true,
 				Token:        token,
 			}
-
 			// var success = struct {
 			// 	BusinessId int    `json:"business_id"`
 			// 	IsAuth     bool   `json:"is_auth"`

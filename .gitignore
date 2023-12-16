@@ -2,8 +2,8 @@
 
 dist/*
 
-internal/env
-internal/database/migrations/
+# internal/env
+# internal/database/migrations/
 
 micro/
 

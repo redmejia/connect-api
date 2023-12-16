@@ -1,0 +1,1 @@
+DELETE FROM business_account WHERE bus_id = 1;
